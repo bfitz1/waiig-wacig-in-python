@@ -3,7 +3,7 @@ import unittest
 from tok import Token, Tag
 from lexer import Lexer
 
-class Test(unittest.TestCase):
+class Test_Lexer(unittest.TestCase):
     def test_tokens(self):
         sample = "=+(){},;"
 
