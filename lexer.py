@@ -1,4 +1,4 @@
-from tok import Tag, Token
+from tok import TokenType, Token
 
 class Lexer:
     def __init__(self, buffer):
@@ -18,7 +18,7 @@ class Lexer:
             raise StopIteration
 
         token = self.next_token()
-        if token.tag == Tag.EOF:
+        if token.type == TokenType.EOF:
             self.finished = True
 
         return token
@@ -58,13 +58,13 @@ class Lexer:
 
         match self.ch:
             case "":
-                token = Token(Tag.EOF, self.ch)
+                token = Token(TokenType.EOF, self.ch)
             case "=" if self.peek_char() == "=":
-                token = Token(Tag.EQ, "==")
+                token = Token(TokenType.EQ, "==")
                 self.read_char()
                 self.read_char()
             case "!" if self.peek_char() == "=":
-                token = Token(Tag.NOT_EQ, "!=")
+                token = Token(TokenType.NOT_EQ, "!=")
                 self.read_char()
                 self.read_char()
             case ch if ch in symbols.keys():
@@ -75,45 +75,45 @@ class Lexer:
                 token = Token(lookup_ident(literal), literal)
             case ch if ch.isnumeric():
                 literal = self.read_number()
-                token = Token(Tag.INT, literal)
+                token = Token(TokenType.INT, literal)
             case _:
-                token = Token(Tag.ILLEGAL, self.ch)
+                token = Token(TokenType.ILLEGAL, self.ch)
                 self.read_char()
         
         return token
 
 keywords = { 
-    "fn": Tag.FUNCTION,
-    "let": Tag.LET,
-    "true": Tag.TRUE,
-    "false": Tag.FALSE,
-    "if": Tag.IF,
-    "else": Tag.ELSE,
-    "return": Tag.RETURN
+    "fn": TokenType.FUNCTION,
+    "let": TokenType.LET,
+    "true": TokenType.TRUE,
+    "false": TokenType.FALSE,
+    "if": TokenType.IF,
+    "else": TokenType.ELSE,
+    "return": TokenType.RETURN
 }
 
 symbols = {
-    "=": Tag.ASSIGN,
-    ";": Tag.SEMICOLON,
-    "(": Tag.LPAREN,
-    ")": Tag.RPAREN,
-    ",": Tag.COMMA,
-    "+": Tag.PLUS,
-    "{": Tag.LBRACE,
-    "}": Tag.RBRACE,
-    "-": Tag.MINUS,
-    "!": Tag.BANG,
-    "*": Tag.ASTERISK,
-    "/": Tag.SLASH,
-    "<": Tag.LT,
-    ">": Tag.GT,
+    "=": TokenType.ASSIGN,
+    ";": TokenType.SEMICOLON,
+    "(": TokenType.LPAREN,
+    ")": TokenType.RPAREN,
+    ",": TokenType.COMMA,
+    "+": TokenType.PLUS,
+    "{": TokenType.LBRACE,
+    "}": TokenType.RBRACE,
+    "-": TokenType.MINUS,
+    "!": TokenType.BANG,
+    "*": TokenType.ASTERISK,
+    "/": TokenType.SLASH,
+    "<": TokenType.LT,
+    ">": TokenType.GT,
 }
 
 def isletter(ch):
     return ch.isalpha() or ch == '_'
 
 def lookup_ident(key):
-    return keywords.get(key, Tag.IDENT)
+    return keywords.get(key, TokenType.IDENT)
 
 def lookup_symbol(key):
-    return symbols.get(key, Tag.ILLEGAL)
+    return symbols.get(key, TokenType.ILLEGAL)
