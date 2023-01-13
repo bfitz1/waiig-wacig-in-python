@@ -117,3 +117,6 @@ def lookup_ident(key):
 
 def lookup_symbol(key):
     return symbols.get(key, TokenType.ILLEGAL)
+
+def lex(text):
+    return list(Lexer(text))
