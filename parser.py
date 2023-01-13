@@ -17,8 +17,10 @@ CALL = 7
 # - I don't know what `return None` is doing in most cases. They show up when
 #   asserts fail, and a failed assert is (IME) a hard crash.
 # - Come to think of it, the errors list goes mostly unused anyway.
+# - Not stopping when asserts fail leads to some other weirdness
+#   when parsing.
 # - It's probably too general for this project, but maybe consider accepting
-#   configuration parameters for the parser
+#   configuration parameters for the parser.
 
 class Parser:
     def __init__(self, lexer):
@@ -48,6 +50,9 @@ class Parser:
         self.register_infix(TokenType.LT, self.parse_infix_expression)
         self.register_infix(TokenType.GT, self.parse_infix_expression)
         self.register_infix(TokenType.LPAREN, self.parse_call_expression)
+
+    def __iter__(self):
+        yield from self.parse_program()
 
     def register_prefix(self, tokentype, fn):
         self.prefix_parse_fns[tokentype] = fn
@@ -81,7 +86,7 @@ class Parser:
         if not self.expect_peek(TokenType.IDENT):
             return None
         
-        text = self.current.text
+        identifier = self.parse_identifier()
 
         if not self.expect_peek(TokenType.ASSIGN):
             return None
@@ -92,7 +97,7 @@ class Parser:
         if self.peek_token_is(TokenType.SEMICOLON):
             self.next_token()
 
-        return LetStatement(text, expr)
+        return LetStatement(identifier, expr)
     
     def parse_return_statement(self):
         self.next_token()
@@ -285,7 +290,7 @@ class Parser:
         self.errors.append(f'expected next token to be {self.peek.type}, got {tokentype} instead')
 
 def parse(text):
-    return Parser(Lexer(text)).parse_program()
+    return list(Parser(Lexer(text)))
 
 precedences = dict([
     (TokenType.EQ, EQUALS),
