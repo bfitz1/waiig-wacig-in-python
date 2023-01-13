@@ -1,7 +1,8 @@
-from typing import NamedTuple
 from enum import Enum
+from dataclasses import dataclass
 
-class Tag(Enum):
+class TokenType(Enum):
+    # Meta
     ILLEGAL = "ILLEGAL"
     EOF = "EOF"
 
@@ -38,6 +39,10 @@ class Tag(Enum):
     ELSE = "ELSE"
     RETURN = "RETURN"
 
-class Token(NamedTuple):
-    tag: Tag
-    literal: str
+@dataclass
+class Token:
+    type: TokenType
+    text: str
+
+    def __repr__(self):
+        return f"Token(tag={self.type.name}, text={self.text!r})"
