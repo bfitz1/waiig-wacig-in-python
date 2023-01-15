@@ -181,6 +181,19 @@ addTwo(2);
         returned = Eval(Environment(), parse(sample))
         self.assertEqual(returned, expected, f"Expected {expected}, got {returned}")
 
+    def test_builtin_functions(self):
+        tests = [
+            ('len("")', obj.Integer(0)),
+            ('len("four")', obj.Integer(4)),
+            ('len("hello world")', obj.Integer(11)),
+            ('len(1)', obj.Error("argument to `len` not supported, got INTEGER")),
+            ('len("one", "two")', obj.Error("wrong number of arguments; got 2 but wanted 1")),
+        ]
+
+        for i, (sample, expected) in enumerate(tests):
+            returned = Eval(Environment(), parse(sample))
+            self.assertEqual(returned, expected, f"tests[{i}]: expected {expected}, got {returned}")
+
 
 if __name__ == '__main__':
     unittest.main()

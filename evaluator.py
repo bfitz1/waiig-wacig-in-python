@@ -2,6 +2,7 @@ import mast as ast
 import mobject as obj
 from mobject import inspect, typeof
 from environment import Environment
+from mbuiltins import builtinfns
 
 NULL = obj.Null()
 TRUE = obj.Boolean(True)
@@ -110,13 +111,18 @@ def eval_expressions(env, exprs):
     
     return result
 
-def apply_function(fn, args):
-    if not isinstance(fn, obj.Function):
-        return obj.Error(f"not a function: {typeof(fn)}")
+def apply_function(function, arguments):
+    match function:
+        case obj.Function(_, body, _):
+            extended_env = extend_function_env(function, arguments)
+            evaluated = Eval(extended_env, body)
+            return unwrap_return_value(evaluated)
+        case obj.Builtin(fn):
+            return fn(*arguments)
+        case _:
+            return obj.Error(f"not a function: {typeof(function)}")
     
-    extended_env = extend_function_env(fn, args)
-    evaluated = Eval(extended_env, fn.body)
-    return unwrap_return_value(evaluated)
+
 
 def extend_function_env(fn, args):
     env = Environment(outer=fn.env)
@@ -133,7 +139,15 @@ def unwrap_return_value(ret):
             return ret
     
 def eval_identifier(env, key):
-    return env.get(key) or obj.Error(f"identifier not found: {key}")
+    value = env.get(key)
+    if value:
+        return value
+    
+    builtin = builtinfns.get(key)
+    if builtin:
+        return builtin
+
+    return obj.Error(f"identifier not found: {key}")
 
 def eval_prefix_expression(operator, right):
     match operator:
@@ -206,7 +220,7 @@ def eval_string_infix_expression(operator, left, right):
     leftval = left.value
     rightval = right.value
     return obj.String(leftval + rightval)
-    
+
 def eval_if_expression(env, condition, consequence, alternative):
     cond = Eval(env, condition)
     if is_error(cond):
