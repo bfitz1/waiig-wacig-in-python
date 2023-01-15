@@ -148,6 +148,8 @@ def eval_infix_expression(operator, left, right):
     match (operator, left, right):
         case (_, obj.Integer(_), obj.Integer(_)):
             return eval_integer_infix_expression(operator, left, right)
+        case (_, obj.String(_), obj.String(_)):
+            return eval_string_infix_expression(operator, left, right)
         case (_, left, right) if typeof(left) != typeof(right):
             return obj.Error(f"type mismatch: {typeof(left)} {operator} {typeof(right)}")
         case ("==", _, _):
@@ -197,6 +199,14 @@ def eval_integer_infix_expression(operator, left, right):
         case _:
             return obj.Error(f"unknown operator: {typeof(left)} {operator} {typeof(right)}")
 
+def eval_string_infix_expression(operator, left, right):
+    if operator != "+":
+        return obj.Error(f"unknown operator: {typeof(left)} {operator} {typeof(right)}")
+    
+    leftval = left.value
+    rightval = right.value
+    return obj.String(leftval + rightval)
+    
 def eval_if_expression(env, condition, consequence, alternative):
     cond = Eval(env, condition)
     if is_error(cond):

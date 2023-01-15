@@ -110,6 +110,7 @@ class Test_Eval(unittest.TestCase):
             ("if (10 > 1) { true + false }", obj.Error("unknown operator: BOOLEAN + BOOLEAN")),
             ("if (10 > 1) { if (10 > 1) { return true + false; } return 1; }", obj.Error("unknown operator: BOOLEAN + BOOLEAN")),
             ("foobar", obj.Error("identifier not found: foobar")),
+            ('"Hello" - "World"', obj.Error("unknown operator: STRING - STRING")),
         ]
 
         for i, (sample, expected) in enumerate(tests):
@@ -170,6 +171,12 @@ addTwo(2);
 
     def test_string_literal(self):
         sample = '"Hello World!"'
+        expected = obj.String("Hello World!")
+        returned = Eval(Environment(), parse(sample))
+        self.assertEqual(returned, expected, f"Expected {expected}, got {returned}")
+    
+    def test_string_concatenation(self):
+        sample = '"Hello" + " " + "World!"'
         expected = obj.String("Hello World!")
         returned = Eval(Environment(), parse(sample))
         self.assertEqual(returned, expected, f"Expected {expected}, got {returned}")
