@@ -37,6 +37,10 @@ class IntegerLiteral:
     value: int
 
 @dataclass
+class StringLiteral:
+    value: str
+
+@dataclass
 class Boolean:
     value: bool
 

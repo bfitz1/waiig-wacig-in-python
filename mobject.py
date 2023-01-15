@@ -10,6 +10,10 @@ class Integer:
     value: int
 
 @dataclass
+class String:
+    value: str
+
+@dataclass
 class Boolean:
     value: bool
 
@@ -38,6 +42,8 @@ def inspect(obj):
     match obj:
         case Integer(x):
             return f"{x}"
+        case String(x):
+            return x
         case Boolean(x):
             return f"{x}".lower()
         case Function(parameters, body, env):
@@ -55,6 +61,8 @@ def typeof(obj):
     match obj:
         case Integer(_):
             return "INTEGER"
+        case String(_):
+            return "STRING"
         case Boolean(_):
             return "BOOLEAN"
         case Function(_, _, _):

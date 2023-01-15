@@ -9,6 +9,7 @@ class TokenType(Enum):
     # Identifiers and literals
     IDENT = "IDENT"
     INT = "INT"
+    STRING = "STRING"
 
     # Operators
     ASSIGN = "="
@@ -43,6 +44,11 @@ class TokenType(Enum):
 class Token:
     type: TokenType
     text: str
+
+    # For tuple unpacking
+    def __iter__(self):
+        yield self.type
+        yield self.text
 
     def __repr__(self):
         return f"Token(tag={self.type.name}, text={self.text!r})"

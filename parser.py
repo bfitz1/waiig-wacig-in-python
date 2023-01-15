@@ -40,6 +40,7 @@ class Parser:
         self.register_prefix(TokenType.LPAREN, self.parse_grouped_expression)
         self.register_prefix(TokenType.IF, self.parse_if_expression)
         self.register_prefix(TokenType.FUNCTION, self.parse_function_literal)
+        self.register_prefix(TokenType.STRING, self.parse_string_literal)
 
         self.register_infix(TokenType.PLUS, self.parse_infix_expression)
         self.register_infix(TokenType.MINUS, self.parse_infix_expression)
@@ -158,6 +159,9 @@ class Parser:
             return None
         else:
             return IntegerLiteral(value)
+    
+    def parse_string_literal(self):
+        return StringLiteral(self.current.text)
     
     def parse_function_literal(self):
         if not self.expect_peek(TokenType.LPAREN):

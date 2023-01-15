@@ -166,5 +166,33 @@ if (5 < 10) {
             Token(TokenType.EOF, ""),
         ]
 
+        lexer = Lexer(sample)
+        for i, (t, l) in enumerate(zip(expected, lexer)):
+            et, el = t
+            lt, ll = l
+
+            self.assertEqual(lt, et, f"tests[{i}] - tag wrong. expected={et}, got={lt}")
+            self.assertEqual(ll, el, f"tests[{i}] - literal wrong. expected={el}, got={ll}")
+
+    def test_strings(self):
+        sample = """
+"foobar"
+"foo bar"
+"""
+        expected = [
+            Token(TokenType.STRING, "foobar"),
+            Token(TokenType.STRING, "foo bar"),
+            Token(TokenType.EOF, ""),
+        ]
+
+        lexer = Lexer(sample)
+        for i, (t, l) in enumerate(zip(expected, lexer)):
+            et, el = t
+            lt, ll = l
+
+            self.assertEqual(lt, et, f"tests[{i}] - tag wrong. expected={et}, got={lt}")
+            self.assertEqual(ll, el, f"tests[{i}] - literal wrong. expected={el}, got={ll}")
+
+
 if __name__ == '__main__':
     unittest.main()

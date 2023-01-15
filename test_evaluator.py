@@ -168,6 +168,12 @@ addTwo(2);
         returned = Eval(Environment(), parse(sample))
         self.assertEqual(returned, expected, f"Expected {expected}, got {returned}")
 
+    def test_string_literal(self):
+        sample = '"Hello World!"'
+        expected = obj.String("Hello World!")
+        returned = Eval(Environment(), parse(sample))
+        self.assertEqual(returned, expected, f"Expected {expected}, got {returned}")
+
 
 if __name__ == '__main__':
     unittest.main()

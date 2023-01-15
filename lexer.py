@@ -52,6 +52,17 @@ class Lexer:
         while self.ch.isnumeric():
             self.read_char()
         return self.buffer[start : self.position]
+    
+    def read_string(self):
+        self.read_char()
+
+        start = self.position
+        while self.ch not in { "\"", "" }:
+            self.read_char()
+        end = self.position
+        self.read_char()
+
+        return self.buffer[start : end]
 
     def next_token(self):
         self.skip_whitespace()
@@ -67,15 +78,18 @@ class Lexer:
                 token = Token(TokenType.NOT_EQ, "!=")
                 self.read_char()
                 self.read_char()
+            case "\"":
+                text = self.read_string()
+                token = Token(TokenType.STRING, text)
             case ch if ch in symbols.keys():
                 token = Token(lookup_symbol(self.ch), self.ch)
                 self.read_char()
             case ch if isletter(ch):
-                literal = self.read_identifier()
-                token = Token(lookup_ident(literal), literal)
+                text = self.read_identifier()
+                token = Token(lookup_ident(text), text)
             case ch if ch.isnumeric():
-                literal = self.read_number()
-                token = Token(TokenType.INT, literal)
+                text = self.read_number()
+                token = Token(TokenType.INT, text)
             case _:
                 token = Token(TokenType.ILLEGAL, self.ch)
                 self.read_char()

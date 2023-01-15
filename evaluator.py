@@ -25,6 +25,9 @@ def Eval(env, node):
         case ast.IntegerLiteral(value):
             return obj.Integer(value)
 
+        case ast.StringLiteral(value):
+            return obj.String(value)
+
         case ast.Boolean(value):
             return native_boolean_to_object(value)
 
