@@ -249,6 +249,7 @@ class Parser:
         
         consequence = self.parse_block_statement()
 
+        alternative = None
         if self.peek_token_is(TokenType.ELSE):
             self.next_token()
             
@@ -290,7 +291,7 @@ class Parser:
         self.errors.append(f'expected next token to be {self.peek.type}, got {tokentype} instead')
 
 def parse(text):
-    return list(Parser(Lexer(text)))
+    return Parser(Lexer(text)).parse_program()
 
 precedences = dict([
     (TokenType.EQ, EQUALS),
