@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
+import typing
 
 import mast as ast
 import environment as env
@@ -22,6 +23,10 @@ class Function:
     parameters: list[ast.Identifier]
     body: ast.BlockStatement
     env: env.Environment
+
+@dataclass
+class Builtin:
+    fn: typing.Any
 
 @dataclass
 class Null:
@@ -50,6 +55,8 @@ def inspect(obj):
             params = [x.value for x in parameters]
             # Oh no, this is gonna look so bad
             return f"fn({','.join(params)}) {{\n{body}\n}}"
+        case Builtin(_):
+            return "builtin function"
         case Null():
             return "null"
         case ReturnValue(x):
@@ -67,6 +74,8 @@ def typeof(obj):
             return "BOOLEAN"
         case Function(_, _, _):
             return "FUNCTION"
+        case Builtin(_):
+            return "BUILTIN"
         case Null():
             return "NULL"
         case ReturnValue(_):
