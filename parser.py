@@ -11,6 +11,7 @@ SUM = 4
 PRODUCT = 5
 PREFIX = 6
 CALL = 7
+INDEX = 8
 
 # Note to self: Not happy with this, for a variety of reasons:
 # - It just feels like it could be organized and/or expressed better.
@@ -41,6 +42,7 @@ class Parser:
         self.register_prefix(TokenType.IF, self.parse_if_expression)
         self.register_prefix(TokenType.FUNCTION, self.parse_function_literal)
         self.register_prefix(TokenType.STRING, self.parse_string_literal)
+        self.register_prefix(TokenType.LBRACKET, self.parse_array_literal)
 
         self.register_infix(TokenType.PLUS, self.parse_infix_expression)
         self.register_infix(TokenType.MINUS, self.parse_infix_expression)
@@ -51,6 +53,7 @@ class Parser:
         self.register_infix(TokenType.LT, self.parse_infix_expression)
         self.register_infix(TokenType.GT, self.parse_infix_expression)
         self.register_infix(TokenType.LPAREN, self.parse_call_expression)
+        self.register_infix(TokenType.LBRACKET, self.parse_index_expression)
 
     def __iter__(self):
         yield from self.parse_program()
@@ -199,8 +202,39 @@ class Parser:
         
         return identifiers
     
+    def parse_array_literal(self):
+        return ArrayLiteral(self.parse_expression_list(TokenType.RBRACKET))
+
+    def parse_index_expression(self, left):
+        self.next_token()
+
+        index = self.parse_expression(LOWEST)
+        if not self.expect_peek(TokenType.RBRACKET):
+            return None
+        
+        return IndexExpression(left, index)
+    
+    def parse_expression_list(self, end):
+        elements = []
+        if self.peek_token_is(end):
+            return elements
+        
+        self.next_token()
+        elements.append(self.parse_expression(LOWEST))
+
+        while self.peek_token_is(TokenType.COMMA):
+            self.next_token()
+            self.next_token()
+            elements.append(self.parse_expression(LOWEST))
+        
+        if not self.expect_peek(end):
+            return None
+        
+        return elements
+
     def parse_call_expression(self, function):
-        arguments = self.parse_call_arguments()
+        # arguments = self.parse_call_arguments()
+        arguments = self.parse_expression_list(TokenType.RPAREN)
         return CallExpression(function, arguments)
     
     def parse_call_arguments(self):
@@ -307,4 +341,5 @@ precedences = dict([
     (TokenType.SLASH, PRODUCT),
     (TokenType.ASTERISK, PRODUCT),
     (TokenType.LPAREN, CALL),
+    (TokenType.LBRACKET, INDEX),
 ])

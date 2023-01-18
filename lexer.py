@@ -115,6 +115,8 @@ symbols = {
     "+": TokenType.PLUS,
     "{": TokenType.LBRACE,
     "}": TokenType.RBRACE,
+    "[": TokenType.LBRACKET,
+    "]": TokenType.RBRACKET,
     "-": TokenType.MINUS,
     "!": TokenType.BANG,
     "*": TokenType.ASTERISK,

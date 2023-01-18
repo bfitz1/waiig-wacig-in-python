@@ -5,7 +5,7 @@ from lexer import Lexer
 
 class Test_Lexer(unittest.TestCase):
     def test_tokens(self):
-        sample = "=+(){},;"
+        sample = "=+(){}[],;"
 
         expected = [
             Token(TokenType.ASSIGN, "="),
@@ -14,6 +14,8 @@ class Test_Lexer(unittest.TestCase):
             Token(TokenType.RPAREN, ")"),
             Token(TokenType.LBRACE, "{"),
             Token(TokenType.RBRACE, "}"),
+            Token(TokenType.LBRACKET, "["),
+            Token(TokenType.RBRACKET, "]"),
             Token(TokenType.COMMA, ","),
             Token(TokenType.SEMICOLON, ";"),
             Token(TokenType.EOF, ""),
@@ -183,6 +185,25 @@ if (5 < 10) {
             Token(TokenType.STRING, "foobar"),
             Token(TokenType.STRING, "foo bar"),
             Token(TokenType.EOF, ""),
+        ]
+
+        lexer = Lexer(sample)
+        for i, (t, l) in enumerate(zip(expected, lexer)):
+            et, el = t
+            lt, ll = l
+
+            self.assertEqual(lt, et, f"tests[{i}] - tag wrong. expected={et}, got={lt}")
+            self.assertEqual(ll, el, f"tests[{i}] - literal wrong. expected={el}, got={ll}")
+
+    def test_brackets(self):
+        sample = "[1, 2];"
+        expected = [
+            (TokenType.LBRACKET, "["),
+            (TokenType.INT, "1"),
+            (TokenType.COMMA, ","),
+            (TokenType.INT, "2"),
+            (TokenType.RBRACKET, "]"),
+            (TokenType.SEMICOLON, ";"),
         ]
 
         lexer = Lexer(sample)

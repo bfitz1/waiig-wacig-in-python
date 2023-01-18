@@ -194,6 +194,29 @@ addTwo(2);
             returned = Eval(Environment(), parse(sample))
             self.assertEqual(returned, expected, f"tests[{i}]: expected {expected}, got {returned}")
 
+    def test_array_literals(self):
+        sample = "[1, 2 * 2, 3 + 3]"
+        expected = obj.Array([obj.Integer(1), obj.Integer(4), obj.Integer(6)])
+        returned = Eval(Environment(), parse(sample))
+        self.assertEqual(returned, expected, f"Expected {expected}, got {returned}")
+    
+    def test_array_index_expression(self):
+        tests = [
+            ("[1, 2, 3][0]", obj.Integer(1)),
+            ("[1, 2, 3][1]", obj.Integer(2)),
+            ("[1, 3, 3][2]", obj.Integer(3)),
+            ("let i = 0; [1][i];", obj.Integer(1)),
+            ("[1, 2, 3][1 + 1];", obj.Integer(3)),
+            ("let myArray = [1, 2, 3]; myArray[2];", obj.Integer(3)),
+            ("let myArray = [1, 2, 3]; myArray[0] + myArray[1] + myArray[2];", obj.Integer(6)),
+            ("let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i]", obj.Integer(2)),
+            ("[1, 2, 3][3]", obj.Null()),
+            ("[1, 2, 3][-1]", obj.Null()),
+        ]
+
+        for i, (sample, expected) in enumerate(tests):
+            returned = Eval(Environment(), parse(sample))
+            self.assertEqual(returned, expected, f"tests[{i}]: expected {expected}, got {returned}")
 
 if __name__ == '__main__':
     unittest.main()

@@ -29,6 +29,10 @@ class Builtin:
     fn: typing.Any
 
 @dataclass
+class Array:
+    elements: list[Object]
+
+@dataclass
 class Null:
     def __repr__(self):
         return "Null"
@@ -57,6 +61,9 @@ def inspect(obj):
             return f"fn({','.join(params)}) {{\n{body}\n}}"
         case Builtin(_):
             return "builtin function"
+        case Array(elements):
+            ele = ", ".join(str(e) for e in elements)
+            return f"[{ele}]"
         case Null():
             return "null"
         case ReturnValue(x):
@@ -76,6 +83,8 @@ def typeof(obj):
             return "FUNCTION"
         case Builtin(_):
             return "BUILTIN"
+        case Array(_):
+            return "ARRAY"
         case Null():
             return "NULL"
         case ReturnValue(_):

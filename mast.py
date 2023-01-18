@@ -50,6 +50,22 @@ class FunctionLiteral:
     body: BlockStatement
 
 @dataclass
+class ArrayLiteral:
+    elements: list[Any]
+
+    def __repr__(self):
+        s = ", ".join(str(x) for x in self.elements)
+        return f"[{s}]"
+
+@dataclass
+class IndexExpression:
+    left: Any
+    index: Any
+
+    def __repr__(self):
+        return f"({self.left}[{self.index}])"
+
+@dataclass
 class CallExpression:
     function: Identifier | FunctionLiteral
     arguments: list[Any]

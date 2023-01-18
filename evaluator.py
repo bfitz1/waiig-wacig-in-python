@@ -34,6 +34,25 @@ def Eval(env, node):
 
         case ast.FunctionLiteral(parameters, body):
             return obj.Function(parameters, body, env)
+
+        case ast.ArrayLiteral(elements):
+            ele = eval_expressions(env, elements)
+
+            if len(ele) == 1 and is_error(elements[0]):
+                return elements[0]
+            
+            return obj.Array(ele)
+        
+        case ast.IndexExpression(left, index):
+            eval_left = Eval(env, left)
+            if is_error(eval_left):
+                return eval_left
+            
+            eval_index = Eval(env, index)
+            if is_error(eval_index):
+                return eval_index
+            
+            return eval_index_expression(eval_left, eval_index)
         
         case ast.CallExpression(function, arguments):
             fn = Eval(env, function)
@@ -121,8 +140,6 @@ def apply_function(function, arguments):
             return fn(*arguments)
         case _:
             return obj.Error(f"not a function: {typeof(function)}")
-    
-
 
 def extend_function_env(fn, args):
     env = Environment(outer=fn.env)
@@ -232,6 +249,20 @@ def eval_if_expression(env, condition, consequence, alternative):
         return Eval(env, alternative)
     else:
         return NULL
+
+def eval_index_expression(left, index):
+    match (left, index):
+        case (obj.Array(_), obj.Integer(_)):
+            return eval_array_index_expression(left, index)
+        case _:
+            return obj.Error(f"index operator not supported: {typeof(left)}")
+
+def eval_array_index_expression(left, index):
+    maxindex = len(left.elements)
+    if index.value < 0 or index.value >= maxindex:
+        return NULL
+    
+    return left.elements[index.value]
 
 def native_boolean_to_object(boolean):
     return TRUE if boolean else FALSE
