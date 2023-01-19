@@ -32,6 +32,23 @@ class Builtin:
 class Array:
     elements: list[Object]
 
+@dataclass(eq=True, frozen=True)
+class HashKey:
+    type: str
+    value: int
+
+@dataclass
+class HashPair:
+    key: Object
+    value: Object
+
+    def __iter__(self):
+        yield self.key, self.value
+
+@dataclass
+class Hash:
+    pairs: dict[HashKey, HashPair]
+
 @dataclass
 class Null:
     def __repr__(self):
@@ -64,6 +81,9 @@ def inspect(obj):
         case Array(elements):
             ele = ", ".join(str(e) for e in elements)
             return f"[{ele}]"
+        case Hash(pairs):
+            p = ", ".join(f"{inspect(x.key)!r}:{inspect(x.value)!r}" for x in pairs.values())
+            return f"{{ {p} }}"
         case Null():
             return "null"
         case ReturnValue(x):
@@ -85,9 +105,18 @@ def typeof(obj):
             return "BUILTIN"
         case Array(_):
             return "ARRAY"
+        case Hash(_):
+            return "HASH"
         case Null():
             return "NULL"
         case ReturnValue(_):
             return "RETURN_VALUE"
         case Error(_):
             return "ERROR"
+
+def hash_key(obj):
+    match obj:
+        case Boolean(_) | Integer(_) | String(_):
+            return HashKey(typeof(obj), hash(obj.value))
+        case _:
+            return None

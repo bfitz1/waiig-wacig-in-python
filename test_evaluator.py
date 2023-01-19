@@ -111,6 +111,7 @@ class Test_Eval(unittest.TestCase):
             ("if (10 > 1) { if (10 > 1) { return true + false; } return 1; }", obj.Error("unknown operator: BOOLEAN + BOOLEAN")),
             ("foobar", obj.Error("identifier not found: foobar")),
             ('"Hello" - "World"', obj.Error("unknown operator: STRING - STRING")),
+            ('{"name": "Monkey"}[fn(x) { x }];', obj.Error("unusable as hash key: FUNCTION")),
         ]
 
         for i, (sample, expected) in enumerate(tests):
@@ -214,6 +215,56 @@ addTwo(2);
             ("[1, 2, 3][-1]", obj.Null()),
         ]
 
+        for i, (sample, expected) in enumerate(tests):
+            returned = Eval(Environment(), parse(sample))
+            self.assertEqual(returned, expected, f"tests[{i}]: expected {expected}, got {returned}")
+
+    def test_string_hash_key(self):
+        hello1 = obj.String("Hello World")
+        hello2 = obj.String("Hello World")
+        diff1 = obj.String("My name is johnny")
+        diff2 = obj.String("My name is johnny")
+
+        self.assertEqual(obj.hash_key(hello1), obj.hash_key(hello2))
+        self.assertEqual(obj.hash_key(diff1), obj.hash_key(diff2))
+        self.assertNotEqual(obj.hash_key(hello1), obj.hash_key(diff1))
+
+    def test_hash_literals(self):
+        sample = """
+let two = "two";
+{
+    "one": 10 - 9,
+    two: 1 + 1,
+    "thr" + "ee": 6 / 2,
+    4: 4,
+    true: 5,
+    false: 6
+}
+"""
+        expected = obj.Hash({
+            obj.hash_key(obj.String("one")): obj.HashPair(obj.String("one"), obj.Integer(1)),
+            obj.hash_key(obj.String("two")): obj.HashPair(obj.String("two"), obj.Integer(2)),
+            obj.hash_key(obj.String("three")): obj.HashPair(obj.String("three"), obj.Integer(3)),
+            obj.hash_key(obj.Integer(4)): obj.HashPair(obj.Integer(4), obj.Integer(4)),
+            obj.hash_key(obj.Boolean(True)): obj.HashPair(obj.Boolean(True), obj.Integer(5)),
+            obj.hash_key(obj.Boolean(False)): obj.HashPair(obj.Boolean(False), obj.Integer(6)),
+        })
+        returned = Eval(Environment(), parse(sample))
+
+        for i, (r, e) in enumerate(zip(returned.pairs.items(), expected.pairs.items())):
+            self.assertEqual(r, e)
+
+    def test_hash_index_expression(self):
+        tests = [
+            ('{"foo": 5}["foo"]', obj.Integer(5)),
+            ('{"foo": 5}["bar"]', obj.Null()),
+            ('let key = "foo"; {"foo": 5}[key]', obj.Integer(5)),
+            ('{}["foo"]', obj.Null()),
+            ('{5: 5}[5]', obj.Integer(5)),
+            ('{true: 5}[true]', obj.Integer(5)),
+            ('{false: 5}[false]', obj.Integer(5)),
+        ]
+         
         for i, (sample, expected) in enumerate(tests):
             returned = Eval(Environment(), parse(sample))
             self.assertEqual(returned, expected, f"tests[{i}]: expected {expected}, got {returned}")

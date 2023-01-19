@@ -26,6 +26,7 @@ class TokenType(Enum):
     # Delimiters
     COMMA = ","
     SEMICOLON = ";"
+    COLON = ":"
     LPAREN = "("
     RPAREN = ")"
     LBRACE = "{"

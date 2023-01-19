@@ -5,7 +5,7 @@ from lexer import Lexer
 
 class Test_Lexer(unittest.TestCase):
     def test_tokens(self):
-        sample = "=+(){}[],;"
+        sample = "=+(){}[],;:"
 
         expected = [
             Token(TokenType.ASSIGN, "="),
@@ -18,6 +18,7 @@ class Test_Lexer(unittest.TestCase):
             Token(TokenType.RBRACKET, "]"),
             Token(TokenType.COMMA, ","),
             Token(TokenType.SEMICOLON, ";"),
+            Token(TokenType.COLON, ":"),
             Token(TokenType.EOF, ""),
         ]
 
@@ -214,6 +215,24 @@ if (5 < 10) {
             self.assertEqual(lt, et, f"tests[{i}] - tag wrong. expected={et}, got={lt}")
             self.assertEqual(ll, el, f"tests[{i}] - literal wrong. expected={el}, got={ll}")
 
+    def test_hashmap(self):
+        sample = '{"foo": "bar"}'
+        expected = [
+            Token(TokenType.LBRACE, "{"),
+            Token(TokenType.STRING, "foo"),
+            Token(TokenType.COLON, ":"),
+            Token(TokenType.STRING, "bar"),
+            Token(TokenType.RBRACE, "}"),
+            Token(TokenType.EOF, ""),
+        ]
+
+        lexer = Lexer(sample)
+        for i, (t, l) in enumerate(zip(expected, lexer)):
+            et, el = t
+            lt, ll = l
+
+            self.assertEqual(lt, et, f"tests[{i}] - tag wrong. expected={et}, got={lt}")
+            self.assertEqual(ll, el, f"tests[{i}] - literal wrong. expected={el}, got={ll}")
 
 if __name__ == '__main__':
     unittest.main()

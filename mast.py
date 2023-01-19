@@ -7,49 +7,78 @@ from typing import Any
 # - Dataclasses are more compact, but writing type hints doesn't feel great.
 # - Why not just stick to values (list, tuples and dicts)? I dunno, in too deep I guess.
 
-@dataclass
+@dataclass(eq=True, frozen=True)
 class PrefixExpression:
     operator: str
     right: Any
 
-@dataclass
+    def __repr__(self):
+        return f"({str(self.operator)}{str(self.right)})"
+
+@dataclass(eq=True, frozen=True)
 class InfixExpression:
     left: Any
     operator: str
     right: Any
 
-@dataclass
+    def __repr__(self):
+        return f"({str(self.left)}{str(self.operator)}{str(self.right)})"
+
+@dataclass(eq=True, frozen=True)
 class BlockStatement:
     statements: Any
 
-@dataclass
+    def __repr__(self):
+        s = "\n".join(str(x) for x in self.statements)
+        return f"{{ {s} }}"
+
+@dataclass(eq=True, frozen=True)
 class IfExpression:
     condition: Any
     consequence: BlockStatement
     alternative: BlockStatement
 
-@dataclass
+    def __repr__(self):
+        return f"if ({str(self.condition)}) {str(self.consequence)} else {str(self.alternative)}"
+
+@dataclass(eq=True, frozen=True)
 class Identifier:
     value: str
 
-@dataclass
+    def __repr__(self):
+        return f"{self.value}"
+
+@dataclass(eq=True, frozen=True)
 class IntegerLiteral:
     value: int
 
-@dataclass
+    def __repr__(self):
+        return f"{self.value}"
+
+@dataclass(eq=True, frozen=True)
 class StringLiteral:
     value: str
 
-@dataclass
+    def __repr__(self):
+        return f"{self.value!r}"
+
+@dataclass(eq=True, frozen=True)
 class Boolean:
     value: bool
 
-@dataclass
+    def __repr__(self):
+        return f"{str(self.value)}".lower()
+
+@dataclass(eq=True, frozen=True)
 class FunctionLiteral:
     parameters: list[Identifier]
     body: BlockStatement
 
-@dataclass
+    def __repr__(self):
+        p = ", ".join(str(x) for x in parameters)
+        return f"fn ({p}) {{ {str(self.body)} }}"
+
+@dataclass(eq=True, frozen=True)
 class ArrayLiteral:
     elements: list[Any]
 
@@ -57,7 +86,15 @@ class ArrayLiteral:
         s = ", ".join(str(x) for x in self.elements)
         return f"[{s}]"
 
-@dataclass
+@dataclass(eq=True, frozen=True)
+class HashLiteral:
+    pairs: dict[Any, Any]
+    
+    def __repr__(self):
+        s = ", ".join(f"{str(k)}:{str(v)}" for k, v in self.pairs.items())
+        return f"{{{s}}}"
+
+@dataclass(eq=True, frozen=True)
 class IndexExpression:
     left: Any
     index: Any
@@ -65,25 +102,38 @@ class IndexExpression:
     def __repr__(self):
         return f"({self.left}[{self.index}])"
 
-@dataclass
+@dataclass(eq=True, frozen=True)
 class CallExpression:
     function: Identifier | FunctionLiteral
     arguments: list[Any]
 
-@dataclass
+    def __repr__(self):
+        a = ", ".join(str(x) for x in arguments)
+        return f"({str(self.function)})({a})"
+
+@dataclass(eq=True, frozen=True)
 class LetStatement:
     identifier: str
     expr: Any
 
-@dataclass
+    def __repr__(self):
+        return f"let {str(self.identifier)} = {str(self.expr)};"
+
+@dataclass(eq=True, frozen=True)
 class ReturnStatement:
     expr: Any
 
-@dataclass
+    def __repr__(self):
+        return f"return {str(self.expr)}"
+
+@dataclass(eq=True, frozen=True)
 class ExpressionStatement:
     expr: Any
 
-@dataclass
+    def __repr__(self):
+        return f"{str(self.expr)};"
+
+@dataclass(eq=True, frozen=True)
 class Program:
     statements: list[Any]
 

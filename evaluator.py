@@ -43,6 +43,9 @@ def Eval(env, node):
             
             return obj.Array(ele)
         
+        case ast.HashLiteral(_):
+            return eval_hash_literal(env, node)
+        
         case ast.IndexExpression(left, index):
             eval_left = Eval(env, left)
             if is_error(eval_left):
@@ -254,6 +257,8 @@ def eval_index_expression(left, index):
     match (left, index):
         case (obj.Array(_), obj.Integer(_)):
             return eval_array_index_expression(left, index)
+        case (obj.Hash(_), _):
+            return eval_hash_index_expression(left, index)
         case _:
             return obj.Error(f"index operator not supported: {typeof(left)}")
 
@@ -263,6 +268,37 @@ def eval_array_index_expression(left, index):
         return NULL
     
     return left.elements[index.value]
+
+def eval_hash_index_expression(left, index):
+    key = obj.hash_key(index)
+    if not key:
+        return obj.Error(f"unusable as hash key: {typeof(index)}")
+    
+    pair = left.pairs.get(key, NULL)
+    if pair == NULL:
+        return NULL
+        
+    return pair.value
+
+def eval_hash_literal(env, node):
+    pairs = dict()
+    for keynode, valuenode in node.pairs.items():
+        key = Eval(env, keynode)
+        if is_error(key):
+            return key
+        
+        hashkey = obj.hash_key(key)
+        if not hashkey:
+            return obj.Error(f"unusable as a hash key: {typeof(key)}")
+        
+        value = Eval(env, valuenode)
+        if is_error(value):
+            return value
+        
+        pairs[hashkey] = obj.HashPair(key, value)
+    
+    return obj.Hash(pairs)
+
 
 def native_boolean_to_object(boolean):
     return TRUE if boolean else FALSE

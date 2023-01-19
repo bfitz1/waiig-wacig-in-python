@@ -43,6 +43,7 @@ class Parser:
         self.register_prefix(TokenType.FUNCTION, self.parse_function_literal)
         self.register_prefix(TokenType.STRING, self.parse_string_literal)
         self.register_prefix(TokenType.LBRACKET, self.parse_array_literal)
+        self.register_prefix(TokenType.LBRACE, self.parse_hash_literal)
 
         self.register_infix(TokenType.PLUS, self.parse_infix_expression)
         self.register_infix(TokenType.MINUS, self.parse_infix_expression)
@@ -67,6 +68,29 @@ class Parser:
     def next_token(self):
         self.current = self.peek
         self.peek = self.lexer.next_token()
+
+    def current_token_is(self, tokentype):
+        return self.current.type == tokentype
+
+    def peek_token_is(self, tokentype):
+        return self.peek.type == tokentype
+    
+    def expect_peek(self, tokentype):
+        if self.peek_token_is(tokentype):
+            self.next_token()
+            return True
+        else:
+            self.peek_error(tokentype)
+            return False
+    
+    def peek_precedence(self):
+        return precedences.get(self.peek.type, LOWEST)
+    
+    def current_precedence(self):
+        return precedences.get(self.current.type, LOWEST)
+
+    def peek_error(self, tokentype):
+        self.errors.append(f'expected next token to be {self.peek.type}, got {tokentype} instead')
 
     def parse_program(self):
         statements = []
@@ -205,6 +229,26 @@ class Parser:
     def parse_array_literal(self):
         return ArrayLiteral(self.parse_expression_list(TokenType.RBRACKET))
 
+    def parse_hash_literal(self):
+        pairs = dict()
+        while not self.peek_token_is(TokenType.RBRACE):
+            self.next_token()
+            key = self.parse_expression(LOWEST)
+            if not self.expect_peek(TokenType.COLON):
+                return None
+            
+            self.next_token()
+            value = self.parse_expression(LOWEST)
+            if not (self.peek_token_is(TokenType.RBRACE) or self.expect_peek(TokenType.COMMA)):
+                return None
+
+            pairs[key] = value
+        
+        if not self.expect_peek(TokenType.RBRACE):
+            return None
+
+        return HashLiteral(pairs)
+
     def parse_index_expression(self, left):
         self.next_token()
 
@@ -303,30 +347,8 @@ class Parser:
         prece = self.current_precedence()
         self.next_token()
         right = self.parse_expression(prece)
-        return InfixExpression(left, operator, right)
-    
-    def current_token_is(self, tokentype):
-        return self.current.type == tokentype
+        return InfixExpression(left, operator, right)    
 
-    def peek_token_is(self, tokentype):
-        return self.peek.type == tokentype
-    
-    def expect_peek(self, tokentype):
-        if self.peek_token_is(tokentype):
-            self.next_token()
-            return True
-        else:
-            self.peek_error(tokentype)
-            return False
-    
-    def peek_precedence(self):
-        return precedences.get(self.peek.type, LOWEST)
-    
-    def current_precedence(self):
-        return precedences.get(self.current.type, LOWEST)
-
-    def peek_error(self, tokentype):
-        self.errors.append(f'expected next token to be {self.peek.type}, got {tokentype} instead')
 
 def parse(text):
     return Parser(Lexer(text)).parse_program()
