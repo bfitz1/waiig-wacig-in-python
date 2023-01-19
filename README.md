@@ -1,6 +1,9 @@
 # Writing an Interpreter/Compiler in Go (in Python)
 
-Working through "Writing an Interpreter in Go" (WAIIG) and "Writing a Compiler in Go" (WACIG) using Python.
+Working through "Writing an Interpreter in Go" (WAIIG) and "Writing a Compiler in Go" (WACIG) using Python. Both books are available for purchase here:
+
+https://interpreterbook.com/
+https://compilerbook.com/
 
 ## Goals and TODOs
 
