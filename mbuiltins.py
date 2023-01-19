@@ -64,10 +64,17 @@ def push(*args):
     
     return obj.Array(array)
 
+def puts(*args):
+    for arg in args:
+        print(obj.inspect(arg))
+    
+    return obj.Null()
+
 builtinfns = {
     "len": obj.Builtin(builtin_len),
     "first": obj.Builtin(first),
     "last": obj.Builtin(last),
     "rest": obj.Builtin(rest),
     "push": obj.Builtin(push),
+    "puts": obj.Builtin(puts),
 }

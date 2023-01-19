@@ -75,7 +75,7 @@ def inspect(obj):
         case Function(parameters, body, env):
             params = [x.value for x in parameters]
             # Oh no, this is gonna look so bad
-            return f"fn({','.join(params)}) {{\n{body}\n}}"
+            return f"fn({','.join(params)}) {body}"
         case Builtin(_):
             return "builtin function"
         case Array(elements):
